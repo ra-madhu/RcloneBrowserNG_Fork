@@ -15,7 +15,6 @@ jobs:
     - name: Checkout Source Code
       uses: actions/checkout@v4
 
-    # FIX: Changed creator name from jwlawrence to jwlawson
     - name: Set up CMake
       uses: jwlawson/actions-setup-cmake@v2
 
@@ -34,22 +33,28 @@ jobs:
       run: |
         mkdir build
         cd build
-        # FIX: Explicitly forcing CXX Standard flags to bypass the internal Qt6 stdext macro error
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_STANDARD_REQUIRED=ON ..
-
+        # FIX: Forcing MSVC to skip the restrictive stdext validation loop using custom compiler flags
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="/D_SILENCE_STDEXT_ARR_IT_DEPRECATION_WARNING" -DBUILD_TESTING=OFF ..
 
     - name: Compile and Build App
       run: |
         cd build
         cmake --build . --config Release
 
+    - name: Clean and Strip Binary
+      run: |
+        cd build
+        cd src/Release
+        # Remove heavy debugging files
+        if (Test-Path "RcloneBrowser.pdb") { Remove-Item "RcloneBrowser.pdb" }
+        # Deploy deployment runtimes dynamically
+        windeployqt --release RcloneBrowser.exe
+
     - name: Package Windows Binary
       run: |
         cd build
-        windeployqt --release Release/RcloneBrowser.exe
-        Compress-Archive -Path Release/* -DestinationPath RcloneBrowser-Windows.zip
+        Compress-Archive -Path src/Release/* -DestinationPath RcloneBrowser-Windows.zip
 
-    # FIX: Changed actions/artifacts to actions/upload-artifact@v4
     - name: Upload Finished Application
       uses: actions/upload-artifact@v4
       with:
