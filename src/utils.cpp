@@ -1,3 +1,7 @@
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "utils.h"
 
 #if defined(Q_OS_WIN32)
