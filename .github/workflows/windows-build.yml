@@ -1,0 +1,55 @@
+name: Build Windows Application
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Allows you to run the build manually at any time
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Set up CMake
+      uses: jwlawrence/actions-setup-cmake@v1
+
+    - name: Install MSVC Compiler
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Install Qt 6 Framework
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.5.3' # Adjust this to match the Qt version your code requires
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2019_64'
+
+    - name: Configure CMake Project
+      run: |
+        mkdir build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+
+    - name: Compile and Build App
+      run: |
+        cd build
+        cmake --build . --config Release
+
+    - name: Package Windows Binary
+      run: |
+        cd build
+        # Deploy Qt runtime dependencies so the .exe runs standalone
+        windeployqt --release Release/RcloneBrowser.exe
+        # Compress the application folder
+        Compress-Archive -Path Release/* -DestinationPath RcloneBrowser-Windows.zip
+
+    - name: Upload Finished Application
+      uses: actions/artifacts@v4
+      with:
+        name: Windows-Build-Binary
+        path: build/RcloneBrowser-Windows.zip
