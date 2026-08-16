@@ -8,7 +8,6 @@ on:
   workflow_dispatch: 
 
 env:
-  # FIX: Handles the runner environment migration notice gracefully
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
@@ -39,33 +38,19 @@ jobs:
         cd build
         cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ..
 
-
     - name: Compile and Build App
       run: |
         cd build
         cmake --build . --config Release
 
-    - name: Clean and Strip Binary
+    - name: Clean and Package Binary
       run: |
         cd build
-        # Check if the output lands inside the src subdirectory or root build folder
         if (Test-Path "src/Release") { cd src/Release } else { cd Release }
-        
-        # FIX: Remove heavy debug tracking map file to make the app light
         if (Test-Path "RcloneBrowser.pdb") { Remove-Item "RcloneBrowser.pdb" }
-        
-        # Deploy standalone core runtime libraries
         windeployqt --release RcloneBrowser.exe
-
-    - name: Package Windows Binary
-      run: |
-        cd build
-        # Compress whatever output folder contains our newly deployed binaries
-        if (Test-Path "src/Release/RcloneBrowser.exe") {
-            Compress-Archive -Path src/Release/* -DestinationPath RcloneBrowser-Windows.zip
-        } else {
-            Compress-Archive -Path Release/* -DestinationPath RcloneBrowser-Windows.zip
-        }
+        cd ../..
+        Compress-Archive -Path build/src/Release/* -DestinationPath build/RcloneBrowser-Windows.zip
 
     - name: Upload Finished Application
       uses: actions/upload-artifact@v4
