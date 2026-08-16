@@ -1,26 +1,42 @@
-#pragma once
+#ifndef PCH_H
+#define PCH_H
 
+// FORCE FIX: Explicitly forcing MSVC to bypass the internal stdext tracking validation
 #ifdef _MSC_VER
-#pragma warning(push, 0)
+#ifndef _SILENCE_STDEXT_ARR_IT_DEPRECATION_WARNING
+#define _SILENCE_STDEXT_ARR_IT_DEPRECATION_WARNING
+#endif
 #endif
 
 #include <memory>
+#include <vector>
+#include <string>
+#include <map>
+#include <set>
+#include <algorithm>
+#include <functional>
+#include <cassert>
 
-#include <QtCore>
-#include <QtDebug>
-#include <QtGui>
-#include <QtNetwork>
-#include <QtWidgets>
+#include <QApplication>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QHash>
+#include <QIcon>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QList>
+#include <QMap>
+#include <QProcess>
 #include <QRegularExpression>
+#include <QSet>
+#include <QSettings>
+#include <QString>
+#include <QStringList>
+#include <QTextStream>
+#include <QUrl>
+#include <QVariant>
+#include <QVector>
 
-// The Windows headers have to be included explicitly for the shell/COM/process APIs
-#if defined(Q_OS_WIN32)
-#include <qt_windows.h>
-#include <objbase.h>
-#include <shobjidl.h>
-#include <shellapi.h>
-#endif
-
-#ifdef _MSC_VER
-#pragma warning pop
-#endif
+#endif // PCH_H
