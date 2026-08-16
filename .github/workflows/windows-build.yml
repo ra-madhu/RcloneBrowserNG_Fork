@@ -5,7 +5,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch: # Allows you to run the build manually at any time
+  workflow_dispatch: 
 
 jobs:
   build-windows:
@@ -15,8 +15,9 @@ jobs:
     - name: Checkout Source Code
       uses: actions/checkout@v4
 
+    # FIX: Changed creator name from jwlawrence to jwlawson
     - name: Set up CMake
-      uses: jwlawrence/actions-setup-cmake@v1
+      uses: jwlawson/actions-setup-cmake@v2
 
     - name: Install MSVC Compiler
       uses: ilammy/msvc-dev-cmd@v1
@@ -24,7 +25,7 @@ jobs:
     - name: Install Qt 6 Framework
       uses: jurplel/install-qt-action@v3
       with:
-        version: '6.5.3' # Adjust this to match the Qt version your code requires
+        version: '6.5.3' 
         host: 'windows'
         target: 'desktop'
         arch: 'win64_msvc2019_64'
@@ -43,13 +44,12 @@ jobs:
     - name: Package Windows Binary
       run: |
         cd build
-        # Deploy Qt runtime dependencies so the .exe runs standalone
         windeployqt --release Release/RcloneBrowser.exe
-        # Compress the application folder
         Compress-Archive -Path Release/* -DestinationPath RcloneBrowser-Windows.zip
 
+    # FIX: Changed actions/artifacts to actions/upload-artifact@v4
     - name: Upload Finished Application
-      uses: actions/artifacts@v4
+      uses: actions/upload-artifact@v4
       with:
         name: Windows-Build-Binary
         path: build/RcloneBrowser-Windows.zip
