@@ -37,8 +37,8 @@ jobs:
       run: |
         mkdir build
         cd build
-        # FIX: Using strict string quotes for MSVC preprocessor macro definition to bypass the stdext issue safely
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="/D_SILENCE_STDEXT_ARR_IT_DEPRECATION_WARNING" -DBUILD_TESTING=OFF ..
+        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ..
+
 
     - name: Compile and Build App
       run: |
